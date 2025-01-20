@@ -37,5 +37,5 @@ for (i in seq_len(nrow(agents))) {
   all_results = rbind(all_results, df)
 }
 
-save(all_results, file = "./adaptive_optimization_simulations/data/simulation_resultls/1_down_1_up_simulation_results.RData")
+save(all_results, file = "./adaptive_optimization_simulations/data/simulation_results/1_down_1_up_simulation_results.RData")
 
