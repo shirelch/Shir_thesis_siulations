@@ -56,15 +56,12 @@ for (guessed_true_slope in guessed_true_slope_values) {
     
     coherence = sum(posterior_density * possible_threshold_values)
     
-    
     if (trial == config$Ntrials) {
       # Store results for each parameter combination
       all_results = rbind(all_results, df)
       
     }
   }
-  
-  
   
   save(
     all_results,
