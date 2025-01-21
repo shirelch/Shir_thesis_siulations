@@ -4,7 +4,7 @@ config = list(
   max_coherence = 100,
   initial_coherence = 80,
   guess_rate = 0.5,
-  Ntrials = 50,
+  Ntrials = 100,
   prob_correct = function(coherence, lapse_rate, guess_rate, thershold, beta) {
     guess_rate + ((1 - lapse_rate - guess_rate) / (1 + exp(-beta * (coherence - thershold))))
   })
