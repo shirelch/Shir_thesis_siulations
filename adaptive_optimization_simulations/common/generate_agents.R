@@ -1,11 +1,12 @@
 load("./adaptive_optimization_simulations/data/config.RData")
 
 # Set parameters
-thresholds = seq(5, 75, by = 5)
-slopes = seq(1.5, 5.5, by = 0.25)
+Nsubjects = 100
+thresholds = runif(Nsubjects, 1, 30)
+slopes = runif(Nsubjects, 0.5,8)
 lapse_rate = 0
 
-agents = expand.grid(t = thresholds, beta = slopes, lambda = lapse_rate)
+agents = data.frame(id = seq(1,Nsubjects), t = thresholds, beta = slopes, lambda = lapse_rate)
 agents_df = agents[rep(seq_len(nrow(agents)), each = config$Ntrials), ]
 agents_df$trial = rep(1:config$Ntrials, times = nrow(agents))
 
