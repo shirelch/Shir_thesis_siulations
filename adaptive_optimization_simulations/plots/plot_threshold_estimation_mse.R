@@ -2,7 +2,7 @@ library(ggplot2)
 library(dplyr)
 
 file_paths = list.files(
-  path = "./adaptive_optimization_simulations/data/simulation_results", 
+  path = "./adaptive_optimization_simulations/data/static_threshold_simulation_results", 
   full.names = TRUE
 )
 

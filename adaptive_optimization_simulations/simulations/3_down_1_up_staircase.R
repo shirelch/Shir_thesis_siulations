@@ -9,6 +9,7 @@ for (i in seq_len(nrow(agents_df))) {
   t = agent$t
   beta = agent$beta
   lambda = agent$lambda
+  id = agent$id
   
   trial = agent$trial
   
@@ -47,6 +48,7 @@ for (i in seq_len(nrow(agents_df))) {
   df = rbind(
     df,
     data.frame(
+      id =  id,
       trial,
       acc = acc,
       coherence = coherence,
@@ -62,4 +64,4 @@ for (i in seq_len(nrow(agents_df))) {
 }
 
 
-save(all_results, file = "./adaptive_optimization_simulations/data/simulation_results/3_down_1_up_simulation_results.RData")
+save(all_results, file = "./adaptive_optimization_simulations/data/static_threshold_simulation_results/3_down_1_up_simulation_results.RData")

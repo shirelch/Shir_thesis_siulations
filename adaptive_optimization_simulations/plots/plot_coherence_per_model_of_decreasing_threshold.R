@@ -3,7 +3,7 @@ library(dplyr)
 library(patchwork)
 
 file_paths = list.files(
-  path = "./adaptive_optimization_simulations/data/static_threshold_simulation_results", 
+  path = "./adaptive_optimization_simulations/data/decreasing_threshold_simulation_results", 
   full.names = TRUE
 )
 
@@ -18,12 +18,12 @@ for (file_path in file_paths) {
     dataset_name = sub("_", " ", dataset_name)
     
     df = all_results |>
-      filter(id == 5) |> # Use tolerance for floating-point comparison
+      filter(id %in% c(92, 3)) |> # Use tolerance for floating-point comparison
       mutate(model = dataset_name) |>
-      select(trial, t, beta, coherence, model)
+      select(trial, t, beta, coherence, model, id)
     
     all_models_df = rbind(all_models_df, df)
-
+    
   } else {
     warning(paste("Results not found in", file_path))
   }
@@ -32,28 +32,33 @@ for (file_path in file_paths) {
 quest_df = all_models_df |> filter(grepl("^quest", model, ignore.case = TRUE))
 staircase_df = all_models_df |> filter(!grepl("^quest", model, ignore.case = TRUE))
 
-p1 = ggplot(quest_df, aes(x = trial, y = coherence, color = model)) +
+threshold_line = quest_df |> 
+  group_by(id, trial) |> 
+  summarise(beta = unique(round(beta, 2)), t = unique(t), .groups = "drop")  # Ensure t is unique for each trial
+
+p1 = ggplot(quest_df, aes(x = trial, y = coherence, color = as.factor(round(beta, 2)))) +
   geom_line(linewidth = 1, alpha = 0.9) +
-  geom_hline(data = quest_df, aes(yintercept = t), 
-             linetype = "dashed", alpha = 0.5) +
+  geom_line(data = threshold_line, aes(x = trial, y = t), 
+            linetype = "dashed", alpha = 0.5)  +
   labs(
     title = "Coherence Per Trial (QUEST Methods)",
     x = "Trial",
     y = "Coherence",
-    color = "method"
+    color = "Beta"
   ) +
   theme_minimal()
 
-p2 = ggplot(staircase_df, aes(x = trial, y = coherence, color = model)) +
+p2 = ggplot(staircase_df, aes(x = trial, y = coherence, color = as.factor(round(beta, 2)))) +
   geom_line(linewidth = 1, alpha = 0.9) +
-  geom_hline(data = staircase_df, aes(yintercept = t), 
-             linetype = "dashed", alpha = 0.5) +
+  geom_line(data = threshold_line, aes(x = trial, y = t), 
+            linetype = "dashed", alpha = 0.5) +
   labs(
     title = "Coherence Per Trial (Staircase Methods)",
     x = "Trial",
     y = "Coherence",
-    color = "method"
+    color = "Beta"
   ) +
   theme_minimal()
 
 p2+p1
+

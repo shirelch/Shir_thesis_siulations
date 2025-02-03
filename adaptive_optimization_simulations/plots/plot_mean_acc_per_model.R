@@ -3,7 +3,7 @@ library(dplyr)
 library(plotly)
 
 file_paths = list.files(
-  path = "./adaptive_optimization_simulations/data/simulation_results", 
+  path = "./adaptive_optimization_simulations/data/static_threshold_simulation_results", 
   full.names = TRUE
 )
 
@@ -47,4 +47,3 @@ p = ggplot(avg_acc_df, aes(x = mean_acc, y = model, color = agent)) +
   theme(legend.position = "none")
 
 print(p)
-print(ggplotly(p))

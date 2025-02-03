@@ -13,6 +13,7 @@ simulate_3_down_1_up = function(agents_df, config, out_file) {
     beta   = agent$beta
     lambda = agent$lambda
     trial  = agent$trial
+    id = agent$id
     
     if (trial == 1) {
       step_size           = 30
@@ -71,6 +72,7 @@ simulate_3_down_1_up = function(agents_df, config, out_file) {
     df = rbind(
       df,
       data.frame(
+        id           = id,
         trial        = trial,
         acc          = acc,
         coherence    = coherence,
@@ -92,8 +94,8 @@ simulate_3_down_1_up = function(agents_df, config, out_file) {
 
 simulate_3_down_1_up(agents_df = agents_df,
                      config    = config,
-                     out_file  = "./adaptive_optimization_simulations/data/simulation_results/3_down_1_up_adaptive_step_size_simulation_results.RData")
+                     out_file  = "./adaptive_optimization_simulations/data/static_threshold_simulation_results/3_down_1_up_adaptive_step_size_simulation_results.RData")
 
 simulate_3_down_1_up(agents_df = agents_decreasing_threshold_df,
                      config    = config,
-                     out_file  = "./adaptive_optimization_simulations/data/simulation_results/3_down_1_up_adaptive_step_size_decreasing_threshold_simulation_results.RData")
+                     out_file  = "./adaptive_optimization_simulations/data/decreasing_threshold_simulation_results/3_down_1_up_adaptive_step_size_decreasing_threshold_simulation_results.RData")

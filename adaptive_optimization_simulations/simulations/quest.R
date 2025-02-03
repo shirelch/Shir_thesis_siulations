@@ -21,6 +21,7 @@ simulate_quest = function(agents_df,
     t = agent$t
     beta = agent$beta
     lambda = agent$lambda
+    id = agent$id
     
     trial = agent$trial
     
@@ -54,6 +55,7 @@ simulate_quest = function(agents_df,
     # Append data
     df = rbind(df,
                data.frame(
+                 id = id,
                  trial,
                  acc = acc,
                  coherence = coherence,
@@ -79,7 +81,7 @@ for (guessed_true_slope in guessed_true_slope_values) {
     agents_df = agents_df,
     config    = config,
     out_file = paste0(
-      "./adaptive_optimization_simulations/data/simulation_results/quest_beta_",
+      "./adaptive_optimization_simulations/data/static_threshold_simulation_results/quest_beta_",
       guessed_true_slope,
       "_simulation_results.RData"
     ),
@@ -88,8 +90,8 @@ for (guessed_true_slope in guessed_true_slope_values) {
 }
 
 simulate_quest(
-  agents_df = agents_df,
+  agents_df = agents_decreasing_threshold_df,
   config    = config,
-  out_file = "./adaptive_optimization_simulations/data/simulation_results/quest_beta_0.1_decreasing_threshold_simulation_results.RData",
+  out_file = "./adaptive_optimization_simulations/data/decreasing_threshold_simulation_results/quest_beta_0.1_decreasing_threshold_simulation_results.RData",
   guessed_true_slope = guessed_true_slope
 )
