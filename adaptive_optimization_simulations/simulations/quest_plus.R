@@ -13,22 +13,28 @@ prior_max_slope         = 8
 possible_threshold_values = seq(config$min_coherence, config$max_coherence, length.out = 200)
 possible_slope_values     = seq(prior_min_slope, prior_max_slope, length.out = 200)
 
-prior_density             = outer(
+prior_density = outer(
   dunif(
     possible_threshold_values,
-    config$min_coherence,
-    config$max_coherence
+    min = min(possible_threshold_values),
+    max = max(possible_threshold_values)
   ),
-  dunif(possible_slope_values, prior_min_slope, prior_max_slope)
+  dunif(
+    possible_slope_values,
+    min = min(possible_slope_values),
+    max = max(possible_slope_values)
+  )
 )
-prior_density              = prior_density / sum(prior_density) # Normalize
+
+prior_density = prior_density / sum(prior_density)  # Normalize
+
 candidate_coherences      = seq(0, 100, length.out = 100)
 
 simulate_quest_plus = function(agents_df,
                                config,
                                out_file) {
   for (i in seq_len(nrow(agents_df))) {
-    agent = agents_df[i,]
+    agent = agents_df[i, ]
     t = agent$t
     beta = agent$beta
     lambda = agent$lambda
@@ -47,8 +53,10 @@ simulate_quest_plus = function(agents_df,
     prob_correct = config$prob_correct(coherence, lambda, config$guess_rate, t, beta)
     acc          = rbinom(1, 1, prob_correct)
     
-    likelihood = t (0.5 + 0.5 * (1 / (1 + exp(
-      -possible_slope_values %o% (coherence - possible_threshold_values)
+    likelihood = 0.5 + 0.5 * (1 / (1 + exp(-outer(
+      possible_slope_values,
+      (coherence - possible_threshold_values),
+      "*"
     ))))
     
     # Change stim intensity
@@ -71,52 +79,19 @@ simulate_quest_plus = function(agents_df,
                  beta = beta
                ))
     
-    current_entropy = -sum(posterior_density * log(posterior_density + 1e-10))
+    # Select next stimulus using minimum entropy rule
+    expected_entropy = sapply(candidate_coherences, function(stim) {
+      likelihood <- 0.5 + 0.5 * (1 / (1 + exp(-outer(
+        possible_slope_values,
+        (stim - possible_threshold_values),
+        "*"
+      ))))
+      posterior_updated = posterior_density * likelihood
+      posterior_updated = posterior_updated / sum(posterior_updated)
+      -sum(posterior_updated * log(posterior_updated + 1e-10))
+    })
     
-    best_coherence = NA
-    max_info_gain = -Inf
-    
-    for (coherence_canidate in candidate_coherences) {
-      likelihood_correct  = t (0.5 + 0.5 * (1 / (
-        1 + exp(
-          -possible_slope_values %o% (coherence_canidate - possible_threshold_values)
-        )
-      )))
-      likelihood_incorrect = 1 - likelihood
-      
-      posterior_correct = posterior_density * likelihood_correct
-      posterior_correct = posterior_correct / sum(posterior_correct)
-      posterior_incorrect = posterior_density * likelihood_incorrect
-      posterior_incorrect = posterior_incorrect / sum(posterior_incorrect)
-      
-      entropy_correct   = -sum(posterior_correct * log(posterior_correct + 1e-10))
-      entropy_incorrect = -sum(posterior_incorrect * log(posterior_incorrect + 1e-10))
-      
-      prob_correct_sim =  sum(posterior_density *
-                                t(0.5 + 0.5 * (1 / (
-                                  1 + exp(
-                                    -possible_slope_values %o% (coherence_canidate - possible_threshold_values)
-                                  )
-                                ))))
-      
-      expected_entropy = prob_correct_sim * entropy_correct + (1 - prob_correct_sim) * entropy_incorrect
-      
-      # Calculate information gain
-      info_gain = current_entropy - expected_entropy
-      
-      # If this stimulus provides more information, store it
-      if (info_gain > max_info_gain) {
-        max_info_gain = info_gain
-        best_coherence = coherence_canidate
-      }
-    }
-    coherence = best_coherence
-    if (trial == config$Ntrials) {
-      print(paste0("evaluated agent ", id))
-      # Store results for each parameter combination
-      all_results = rbind(all_results, df)
-      
-    }
+    coherence <- candidate_coherences[which.min(expected_entropy)]
   }
   
   save(all_results,
