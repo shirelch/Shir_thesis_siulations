@@ -30,7 +30,7 @@ prior_density = outer(
 
 prior_density = prior_density / sum(prior_density)  # Normalize
 
-candidate_coherences      = seq(0, 100, length.out = 100)
+candidate_coherences      = seq(0, 50, length.out = 100)
 
 simulate_quest_plus_parallel = function(agents_df, config, out_file) {
   plan(multisession)  # Enables parallel execution
@@ -81,13 +81,13 @@ simulate_quest_plus_parallel = function(agents_df, config, out_file) {
             "*"
           )
         )))
-        posterior_updated <- posterior_density * likelihood
-        posterior_updated <- posterior_updated / sum(posterior_updated)
-        entropy <- -sum(posterior_updated * log(posterior_updated + 1e-10))
+        posterior_updated = posterior_density * likelihood
+        posterior_updated = posterior_updated / sum(posterior_updated)
+        entropy = sum(posterior_updated * log(posterior_updated + 1e-10))
         return(entropy)
       })
       
-      coherence = candidate_coherences[which.min(expected_entropy)]
+      coherence = candidate_coherences[which.min(-expected_entropy)]
       
       df = rbind(
         df,
