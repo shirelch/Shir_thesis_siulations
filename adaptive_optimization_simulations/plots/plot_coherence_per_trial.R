@@ -10,8 +10,8 @@ file_paths = list.files(
 
 plot_agent_results = function(results, title) {
   results = results |>
-    filter(id < 15)
-    mutate(Agent = paste0("t=", t, ", beta=", beta))
+    filter(id > 20 & id < 24)|>
+    mutate(Agent = paste0("t=", as.character(t), ", beta=", as.character(beta)))
   
   dashed_lines = results |>
     group_by(Agent) |>
@@ -20,7 +20,7 @@ plot_agent_results = function(results, title) {
   p = ggplot(results, aes(x = trial, y = coherence, color = Agent)) +
     geom_line() + # Main lines
     geom_hline(data = dashed_lines, aes(yintercept = t, color = Agent), 
-               linetype = "dashed", alpha = 0.1) +
+               linetype = "dashed", alpha = 0.8) +
     labs(
       title = title,
       x = "Test Trial",
@@ -31,18 +31,33 @@ plot_agent_results = function(results, title) {
     theme(legend.position = "none")
 }
 
-for (file_path in file_paths) {
-  load(file_path)
-  
-  if (exists("all_results")) {
-    dataset_name = tools::file_path_sans_ext(basename(file_path))
-    plot_title = paste("Coherence as a Function of Test Trial -", dataset_name)
-    
-    p = plot_agent_results(all_results, plot_title)
-    print(p)
+error_log <- c()  # Store names of files with errors
 
-        rm(all_results)
-  } else {
-    warning(paste("Results not found in", file_path))
-  }
+for (file_path in file_paths) {
+  tryCatch({
+    load(file_path)
+    
+    if (exists("all_results")) {
+      dataset_name = tools::file_path_sans_ext(basename(file_path))
+      plot_title = paste("Coherence as a Function of Test Trial -", dataset_name)
+      
+      p = plot_agent_results(all_results, plot_title)
+      print(p)
+      
+      rm(all_results)
+    } else {
+      warning(paste("Results not found in", file_path))
+    }
+  }, error = function(e) {
+    message(paste("Error processing:", file_path))
+    message("  Error message:", e$message)
+    error_log <<- c(error_log, file_path)  # Save failed file name
+  })
 }
+
+# Print out all files that had errors at the end
+if (length(error_log) > 0) {
+  message("The following files had errors and were skipped:")
+  print(error_log)
+}
+
