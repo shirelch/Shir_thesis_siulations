@@ -1,14 +1,16 @@
 library(ggplot2)
 library(dplyr)
+library(plotly)
 
 file_paths = list.files(
-  path = "./adaptive_optimization_simulations/data/simulation_results", 
+  path = "./adaptive_optimization_simulations/data/static_threshold_simulation_results", 
   full.names = TRUE
 )
 
 
 plot_agent_results = function(results, title) {
   results = results |>
+    filter(id < 15)
     mutate(Agent = paste0("t=", t, ", beta=", beta))
   
   dashed_lines = results |>
