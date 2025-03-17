@@ -48,4 +48,7 @@ ggplot(mse_df, aes(x = model, y = MSE, fill = model)) +
     y = "Mean Squared Error"
   ) +
   theme_minimal() +
-  theme(legend.position = "none")
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(angle = 30, hjust = 1, size = 10) # Tilted x-axis text for readability
+  )
