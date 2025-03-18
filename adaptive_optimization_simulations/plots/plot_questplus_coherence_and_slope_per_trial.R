@@ -7,7 +7,7 @@ load(
 )
 
 df = all_results |>
-  filter(id == 79) |> # Use tolerance for floating-point comparison
+  filter(id == 78) |> # Use tolerance for floating-point comparison
   select(trial, t, beta, coherence, estimated_slope, estimated_threshold)
 
 p1 = ggplot(df, aes(x = trial, y = estimated_slope)) +
