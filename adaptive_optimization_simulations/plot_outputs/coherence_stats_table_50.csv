@@ -1,0 +1,8 @@
+model,50,100,200,500,1000
+1_down_1_up_simulation,"Mean=NaN, SD=NA, Range=[Inf, -Inf]","Mean=0.76, SD=0.02, Range=[0.72, 0.84]","Mean=0.77, SD=0.02, Range=[0.74, 0.81]","Mean=0.77, SD=0.02, Range=[0.75, 0.81]","Mean=0.77, SD=0.02, Range=[0.75, 0.81]"
+3_down_1_up_adaptive_step_size_decreasing_threshold,"Mean=NaN, SD=NA, Range=[Inf, -Inf]","Mean=0.78, SD=0.10, Range=[0.46, 0.94]","Mean=0.76, SD=0.11, Range=[0.46, 0.95]","Mean=0.78, SD=0.11, Range=[0.51, 0.94]","Mean=0.77, SD=0.11, Range=[0.49, 0.92]"
+3_down_1_up_simulation,"Mean=NaN, SD=NA, Range=[Inf, -Inf]","Mean=0.78, SD=0.02, Range=[0.74, 0.84]","Mean=0.78, SD=0.01, Range=[0.76, 0.81]","Mean=0.79, SD=0.01, Range=[0.77, 0.81]","Mean=0.79, SD=0.01, Range=[0.77, 0.81]"
+quest_beta_0.1,"Mean=NaN, SD=NA, Range=[Inf, -Inf]","Mean=0.74, SD=0.03, Range=[0.66, 0.80]","Mean=0.74, SD=0.01, Range=[0.73, 0.76]","Mean=0.75, SD=0.00, Range=[0.73, 0.75]","Mean=0.75, SD=0.00, Range=[0.74, 0.75]"
+quest_beta_1,"Mean=NaN, SD=NA, Range=[Inf, -Inf]","Mean=0.74, SD=0.05, Range=[0.60, 0.88]","Mean=0.74, SD=0.02, Range=[0.70, 0.80]","Mean=0.75, SD=0.01, Range=[0.73, 0.78]","Mean=0.75, SD=0.01, Range=[0.73, 0.77]"
+quest_beta_5,"Mean=NaN, SD=NA, Range=[Inf, -Inf]","Mean=0.76, SD=0.08, Range=[0.60, 0.96]","Mean=0.76, SD=0.04, Range=[0.63, 0.87]","Mean=0.75, SD=0.03, Range=[0.71, 0.86]","Mean=0.76, SD=0.02, Range=[0.71, 0.85]"
+quest_plus,NA,"Mean=0.85, SD=0.07, Range=[0.72, 0.98]",NA,NA,NA
