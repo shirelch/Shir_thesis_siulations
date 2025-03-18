@@ -1,4 +1,8 @@
-load("./adaptive_optimization_simulations/data/agents.Rdata")
+agents_files = list.files(
+  "./adaptive_optimization_simulations/data/agents",
+  pattern = "\\.Rdata$",
+  full.names = TRUE
+)
 load(
   "./adaptive_optimization_simulations/data/agents_with_decreasing_threshold.Rdata"
 )
@@ -22,6 +26,7 @@ simulate_quest = function(agents_df,
     beta = agent$beta
     lambda = agent$lambda
     id = agent$id
+    Ntrials = max(agents_df$trial)
     
     trial = agent$trial
     
@@ -65,7 +70,7 @@ simulate_quest = function(agents_df,
     
     coherence = sum(posterior_density * possible_threshold_values)
     
-    if (trial == config$Ntrials) {
+    if (trial == Ntrials) {
       # Store results for each parameter combination
       all_results = rbind(all_results, df)
       
@@ -76,17 +81,27 @@ simulate_quest = function(agents_df,
        file = out_file)
 }
 
-for (guessed_true_slope in guessed_true_slope_values) {
-  simulate_quest(
-    agents_df = agents_df,
-    config    = config,
-    out_file = paste0(
-      "./adaptive_optimization_simulations/data/static_threshold_simulation_results/quest_beta_",
-      guessed_true_slope,
-      "_simulation_results.RData"
-    ),
-    guessed_true_slope = guessed_true_slope
-  )
+for (file in agents_files) {
+  load(file)
+  Ntrials = max(max(agents_df$trial))
+  
+  all_results = data.frame()
+  
+  for (guessed_true_slope in guessed_true_slope_values) {
+    simulate_quest(
+      agents_df = agents_df,
+      config    = config,
+      out_file = paste0(
+        "./adaptive_optimization_simulations/data/static_threshold_simulation_results/quest_beta_",
+        guessed_true_slope,
+        "_",
+        Ntrials,
+        "_trials",
+        "_simulation_results.RData"
+      ),
+      guessed_true_slope = guessed_true_slope
+    )
+  }
 }
 
 simulate_quest(

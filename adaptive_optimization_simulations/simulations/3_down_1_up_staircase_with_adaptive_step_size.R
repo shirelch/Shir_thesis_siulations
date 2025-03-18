@@ -1,5 +1,11 @@
-load("./adaptive_optimization_simulations/data/agents.Rdata")
-load("./adaptive_optimization_simulations/data/agents_with_decreasing_threshold.Rdata")
+agents_files = list.files(
+  "./adaptive_optimization_simulations/data/agents",
+  pattern = "\\.Rdata$",
+  full.names = TRUE
+)
+load(
+  "./adaptive_optimization_simulations/data/agents_with_decreasing_threshold.Rdata"
+)
 
 load("./adaptive_optimization_simulations/data/config.RData")
 
@@ -14,6 +20,7 @@ simulate_3_down_1_up = function(agents_df, config, out_file) {
     lambda = agent$lambda
     trial  = agent$trial
     id = agent$id
+    Ntrials = max(agents_df$trial)
     
     if (trial == 1) {
       step_size           = 30
@@ -31,10 +38,10 @@ simulate_3_down_1_up = function(agents_df, config, out_file) {
     }
     
     prob_correct = config$prob_correct(coherence,
-                                        lambda,
-                                        config$guess_rate,
-                                        t,
-                                        beta)
+                                       lambda,
+                                       config$guess_rate,
+                                       t,
+                                       beta)
     
     acc = rbinom(1, 1, prob_correct)
     
@@ -82,8 +89,8 @@ simulate_3_down_1_up = function(agents_df, config, out_file) {
         beta         = beta
       )
     )
-
-    if (trial == config$Ntrials) {
+    
+    if (trial == Ntrials) {
       all_results = rbind(all_results, df)
     }
   }
@@ -92,9 +99,18 @@ simulate_3_down_1_up = function(agents_df, config, out_file) {
   message("Simulation saved to ", out_file)
 }
 
-simulate_3_down_1_up(agents_df = agents_df,
-                     config    = config,
-                     out_file  = "./adaptive_optimization_simulations/data/static_threshold_simulation_results/3_down_1_up_adaptive_step_size_simulation_results.RData")
+for (file in agents_files) {
+  load(file)
+  Ntrials = max(max(agents_df$trial))
+  simulate_3_down_1_up(
+    agents_df = agents_df,
+    config    = config,
+    out_file  = sprintf(
+      "./adaptive_optimization_simulations/data/static_threshold_simulation_results/3_down_1_up_adaptive_step_size_decreasing_threshold_%d_trials_results.RData",
+      Ntrials
+    )
+  )
+}
 
 simulate_3_down_1_up(agents_df = agents_decreasing_threshold_df,
                      config    = config,
