@@ -1,8 +1,8 @@
-model,50,1000,200,,500
-1_down_1_up_simulation,"Mean=0.82, SD=0.02, Range=[0.80, 0.88]","Mean=0.77, SD=0.02, Range=[0.72, 0.82]","Mean=0.77, SD=0.02, Range=[0.72, 0.84]",,"Mean=0.77, SD=0.02, Range=[0.72, 0.84]"
-3_down_1_up_simulation,"Mean=0.95, SD=0.02, Range=[0.90, 1.00]","Mean=0.79, SD=0.02, Range=[0.76, 0.82]","Mean=0.79, SD=0.02, Range=[0.76, 0.82]",,"Mean=0.79, SD=0.02, Range=[0.76, 0.86]"
-3_down_1_up_adaptive_step_size_decreasing_threshold,"Mean=0.84, SD=0.05, Range=[0.64, 0.92]","Mean=0.76, SD=0.12, Range=[0.38, 0.98]","Mean=0.77, SD=0.12, Range=[0.46, 0.98]",,"Mean=0.79, SD=0.11, Range=[0.46, 0.96]"
-quest_beta_0.1,"Mean=0.78, SD=0.05, Range=[0.70, 0.94]","Mean=0.75, SD=0.04, Range=[0.64, 0.88]","Mean=0.74, SD=0.03, Range=[0.64, 0.82]",,"Mean=0.75, SD=0.03, Range=[0.66, 0.82]"
-quest_beta_1,"Mean=0.79, SD=0.03, Range=[0.70, 0.86]","Mean=0.74, SD=0.06, Range=[0.60, 0.88]","Mean=0.74, SD=0.05, Range=[0.62, 0.88]",,"Mean=0.76, SD=0.06, Range=[0.62, 0.86]"
-quest_beta_5,"Mean=0.83, SD=0.05, Range=[0.72, 0.96]","Mean=0.76, SD=0.06, Range=[0.60, 0.92]","Mean=0.75, SD=0.07, Range=[0.60, 0.94]",,"Mean=0.75, SD=0.06, Range=[0.60, 0.90]"
-quest_plus,NA,NA,NA,,NA
+"model","100","1000","200","50","500"
+"1_down_1_up_simulation","Mean=0.76, SD=0.02, Range=[0.72, 0.84]","Mean=0.77, SD=0.02, Range=[0.72, 0.82]","Mean=0.77, SD=0.02, Range=[0.72, 0.84]","Mean=0.82, SD=0.02, Range=[0.80, 0.88]","Mean=0.77, SD=0.02, Range=[0.72, 0.84]"
+"3_down_1_up_adaptive_step_size_decreasing_threshold","Mean=0.78, SD=0.10, Range=[0.46, 0.94]","Mean=0.76, SD=0.12, Range=[0.38, 0.98]","Mean=0.77, SD=0.12, Range=[0.46, 0.98]","Mean=0.84, SD=0.05, Range=[0.64, 0.92]","Mean=0.79, SD=0.11, Range=[0.46, 0.96]"
+"3_down_1_up_simulation","Mean=0.78, SD=0.02, Range=[0.74, 0.84]","Mean=0.79, SD=0.02, Range=[0.76, 0.82]","Mean=0.79, SD=0.02, Range=[0.76, 0.82]","Mean=0.95, SD=0.02, Range=[0.90, 1.00]","Mean=0.79, SD=0.02, Range=[0.76, 0.86]"
+"quest_beta_0.1","Mean=0.74, SD=0.03, Range=[0.66, 0.80]","Mean=0.75, SD=0.04, Range=[0.64, 0.88]","Mean=0.74, SD=0.03, Range=[0.64, 0.82]","Mean=0.78, SD=0.05, Range=[0.70, 0.94]","Mean=0.75, SD=0.03, Range=[0.66, 0.82]"
+"quest_beta_1","Mean=0.74, SD=0.05, Range=[0.60, 0.88]","Mean=0.74, SD=0.06, Range=[0.60, 0.88]","Mean=0.74, SD=0.05, Range=[0.62, 0.88]","Mean=0.79, SD=0.03, Range=[0.70, 0.86]","Mean=0.76, SD=0.06, Range=[0.62, 0.86]"
+"quest_beta_5","Mean=0.76, SD=0.08, Range=[0.60, 0.96]","Mean=0.76, SD=0.06, Range=[0.60, 0.92]","Mean=0.75, SD=0.07, Range=[0.60, 0.94]","Mean=0.83, SD=0.05, Range=[0.72, 0.96]","Mean=0.75, SD=0.06, Range=[0.60, 0.90]"
+"quest_plus","Mean=0.85, SD=0.07, Range=[0.72, 0.98]",NA,NA,NA,NA
