@@ -30,7 +30,7 @@ prior_density = outer(
 
 prior_density = prior_density / sum(prior_density)  # Normalize
 
-candidate_coherences      = seq(0, 50, length.out = 100)
+candidate_coherences      = seq(0, 100, length.out = 100)
 
 simulate_quest_plus_parallel = function(agents_df, config, out_file) {
   plan(multisession)  # Enables parallel execution
@@ -56,13 +56,19 @@ simulate_quest_plus_parallel = function(agents_df, config, out_file) {
       prob_correct = config$prob_correct(coherence, lambda, config$guess_rate, t, beta)
       acc = rbinom(1, 1, prob_correct)
       
-      likelihood = 0.5 + 0.5 * (1 / (1 + exp(
-        -outer(
-          possible_slope_values,
-          (coherence - possible_threshold_values),
-          "*"
-        )
-      )))
+      param_grid = expand.grid(t = possible_threshold_values, 
+                                beta = possible_slope_values)
+      
+      df = expand.grid(coherence = candidate_coherences,
+                        param_idx = seq_len(nrow(param_grid)))
+      
+      # Evaluate:
+      likelihood = mapply(function(xval, idx) {
+        # Extract parameters
+        p = as.numeric(param_grid[idx, ])
+        # Evaluate psi
+        config$prob_correct(xval, lambda, config$guess_rate, p[1], p[2])
+      }, df$coherence, df$param_idx)
       
       # Update posterior
       if (acc == 1) {
@@ -74,13 +80,7 @@ simulate_quest_plus_parallel = function(agents_df, config, out_file) {
       
       # Select next stimulus using minimum entropy rule
       expected_entropy = sapply(candidate_coherences, function(stim) {
-        likelihood = 0.5 + 0.5 * (1 / (1 + exp(
-          -outer(
-            possible_slope_values,
-            (stim - possible_threshold_values),
-            "*"
-          )
-        )))
+
         posterior_updated = posterior_density * likelihood
         posterior_updated = posterior_updated / sum(posterior_updated)
         entropy = sum(posterior_updated * log(posterior_updated + 1e-10))
