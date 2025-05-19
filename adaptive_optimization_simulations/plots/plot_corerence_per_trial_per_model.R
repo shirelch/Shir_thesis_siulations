@@ -14,8 +14,10 @@ for (file_path in file_paths) {
   
   if (exists("all_results") && length(all_results) > 0) {
     dataset_name = tools::file_path_sans_ext(basename(file_path))
+    
     dataset_name = sub("_simulation_results", "", dataset_name)
-    dataset_name = sub("_", " ", dataset_name)
+    dataset_name = sub("_100_trials_results", "", dataset_name)  # <-- remove suffix
+    dataset_name = gsub("_", " ", dataset_name)                  # <-- replace underscores with spaces
     
     df = all_results |>
       filter(id == 5) |> # Use tolerance for floating-point comparison
