@@ -25,13 +25,14 @@ for (Ntrain_trials in c(10, 25, 50)) {
     subject_means = all_results |>
       group_by(id) |>
       filter(trial > (Ntrain_trials)) |>
-      summarize(mean_acc_subject = mean(acc, na.rm = TRUE))
+      summarize(mean_acc_subject = mean(acc, na.rm = TRUE), abs_diff = abs(t-coherence))
     
     mean_acc = mean(subject_means$mean_acc_subject)
     sd_acc   = sd(subject_means$mean_acc_subject)
     range_acc = range(subject_means$mean_acc_subject)
     min_acc  = range_acc[1]
     max_acc  = range_acc[2]
+    mean_abs_diff = mean(subject_means$abs_diff)
     
     temp_df = data.frame(
       model = model,
@@ -39,7 +40,8 @@ for (Ntrain_trials in c(10, 25, 50)) {
       mean_acc = mean_acc,
       sd_acc   = sd_acc,
       min_acc  = min_acc,
-      max_acc  = max_acc
+      max_acc  = max_acc,
+      mean_abs_diff = mean_abs_diff
     )
     
     stats_df = rbind(stats_df, temp_df)
@@ -49,11 +51,12 @@ for (Ntrain_trials in c(10, 25, 50)) {
   stats_df = stats_df |>
     mutate(
       coherence_stats = sprintf(
-        "Mean=%.2f, SD=%.2f, Range=[%.2f, %.2f]",
+        "Mean=%.2f, SD=%.2f, Range=[%.2f, %.2f], mean absolute difference=%.2f",
         mean_acc,
         sd_acc,
         min_acc,
-        max_acc
+        max_acc,
+        mean_abs_diff
       )
     )
   
@@ -73,3 +76,4 @@ for (Ntrain_trials in c(10, 25, 50)) {
     row.names = FALSE
   )
 }
+
