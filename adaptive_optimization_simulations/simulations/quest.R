@@ -10,6 +10,7 @@ load(
 load("./adaptive_optimization_simulations/data/config.RData")
 
 all_results = data.frame()
+
 possible_threshold_values = seq(config$min_coherence, config$max_coherence, length.out = 1000)
 prior_density             = dunif(possible_threshold_values,
                                   config$min_coherence,
@@ -83,7 +84,7 @@ simulate_quest = function(agents_df,
 
 for (file in agents_files) {
   load(file)
-  Ntrials = max(max(agents_df$trial))
+  Ntrials = max(agents_df$trial)
   
   all_results = data.frame()
   
