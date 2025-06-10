@@ -1,13 +1,17 @@
-agents_files = list.files(
+library(stringr)
+
+static_threshold_agents_files = list.files(
   "./adaptive_optimization_simulations/data/agents",
   pattern = "\\.Rdata$",
   full.names = TRUE
 )
-load(
-  "./adaptive_optimization_simulations/data/agents_with_decreasing_threshold.Rdata"
+adaptive_threshold_agents_files = list.files(
+  "./adaptive_optimization_simulations/data/agents_with_decreasing_threshold",
+  pattern = "\\.Rdata$",
+  full.names = TRUE
 )
-
 load("./adaptive_optimization_simulations/data/config.RData")
+
 
 simulate_3_down_1_up = function(agents_df, config, out_file) {
   all_results = data.frame()
@@ -99,7 +103,7 @@ simulate_3_down_1_up = function(agents_df, config, out_file) {
   message("Simulation saved to ", out_file)
 }
 
-for (file in agents_files) {
+for (file in static_threshold_agents_files) {
   load(file)
   Ntrials = max(max(agents_df$trial))
   simulate_3_down_1_up(
@@ -112,6 +116,17 @@ for (file in agents_files) {
   )
 }
 
-simulate_3_down_1_up(agents_df = agents_decreasing_threshold_df,
-                     config    = config,
-                     out_file  = "./adaptive_optimization_simulations/data/decreasing_threshold_simulation_results/3_down_1_up_adaptive_step_size_decreasing_threshold_simulation_results.RData")
+for (file in adaptive_threshold_agents_files) {
+  load(file)
+  Ntrials = max(max(agents_decreasing_threshold_df$trial))
+  file_name <- basename(file)
+  decrease_rate <- as.numeric(str_extract(file_name, "\\d+\\.\\d+"))
+  simulate_3_down_1_up(
+    agents_df = agents_decreasing_threshold_df,
+    config    = config,
+    out_file  = sprintf(
+      "./adaptive_optimization_simulations/data/decreasing_threshold_simulation_results/3_down_1_up_adaptive_step_size_decreasing_threshold_%.2f_d_d_results.RData",
+      decrease_rate
+    )
+  )
+}

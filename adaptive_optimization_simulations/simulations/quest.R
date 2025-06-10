@@ -1,10 +1,14 @@
+library(stringr)
+
 agents_files = list.files(
   "./adaptive_optimization_simulations/data/agents",
   pattern = "\\.Rdata$",
   full.names = TRUE
 )
-load(
-  "./adaptive_optimization_simulations/data/agents_with_decreasing_threshold.Rdata"
+adaptive_threshold_agents_files = list.files(
+  "./adaptive_optimization_simulations/data/agents_with_decreasing_threshold",
+  pattern = "\\.Rdata$",
+  full.names = TRUE
 )
 
 load("./adaptive_optimization_simulations/data/config.RData")
@@ -22,7 +26,7 @@ simulate_quest = function(agents_df,
                           out_file,
                           guessed_true_slope) {
   for (i in seq_len(nrow(agents_df))) {
-    agent = agents_df[i,]
+    agent = agents_df[i, ]
     t = agent$t
     beta = agent$beta
     lambda = agent$lambda
@@ -105,9 +109,16 @@ for (file in agents_files) {
   }
 }
 
-simulate_quest(
-  agents_df = agents_decreasing_threshold_df,
-  config    = config,
-  out_file = "./adaptive_optimization_simulations/data/decreasing_threshold_simulation_results/quest_beta_0.1_decreasing_threshold_simulation_results.RData",
-  guessed_true_slope = guessed_true_slope
-)
+for (file in adaptive_threshold_agents_files) {
+  load(file)
+  Ntrials = max(max(agents_decreasing_threshold_df$trial))
+  file_name <- basename(file)
+  decrease_rate <- as.numeric(str_extract(file_name, "\\d+\\.\\d+"))
+  simulate_quest(
+    agents_df = agents_decreasing_threshold_df,
+    config    = config,
+    out_file = sprintf("./adaptive_optimization_simulations/data/decreasing_threshold_simulation_results/quest_beta_0.1_decreasing_threshold_%.2f_d_d_results.RData",
+                       decrease_rate),
+    guessed_true_slope = 0.1
+  )
+}
