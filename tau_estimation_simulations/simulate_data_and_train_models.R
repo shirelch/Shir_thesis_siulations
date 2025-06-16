@@ -7,17 +7,19 @@ library(randomForest)
 library(caret)
 source('functions.R')
 
+load("tau_estimation_simulations/data/config.rdata")
+
 #### SIMULATE DATA AND CREATE MODELS FOR DIFFERENT Nobs ----
 
 # Define the different values of Nobs
-Nobs_values = c(150)
+Nobs_values = config$Nobs
 
 # Iterate over each value of Nobs
 for (current_Nobs in Nobs_values) {
   cat("Processing Nobs =", current_Nobs, "\n")
   
   # Define number of subjects
-  Nsubj = 10000
+  Nsubj = config$Nsubj
   
   # Simulate parameters
   mu    = runif(Nsubj, 0, 2000)
