@@ -87,4 +87,32 @@ model_threshold_correlation_df <- convergence_results |>
 
 print(model_threshold_correlation_df)
 
+# Filter for quest plus model only
+# Load only the quest plus file
+quest_plus_file <- file_paths[grepl("quest_plus_100_trials_simulation_results", file_paths)]
 
+if (length(quest_plus_file) == 1) {
+  load(quest_plus_file)
+  
+  if (exists("all_results") && length(all_results) > 0) {
+    # Extract beta and estimated_slope only from the final trial of each simulation
+    quest_plus_slope_df <- all_results |>
+      group_by(simulation = interaction(t, beta)) |>  # Each unique sim
+      filter(trial == max(trial)) |>
+      ungroup() |>
+      select(beta, estimated_slope)
+    
+    # Compute correlation and MSE
+    quest_plus_slope_metrics <- quest_plus_slope_df |>
+      summarise(
+        correlation_estimated_beta = cor(estimated_slope, beta, use = "complete.obs"),
+        mse_estimated_beta = mean((estimated_slope - beta)^2, na.rm = TRUE)
+      )
+    
+    print(quest_plus_slope_metrics)
+  } else {
+    warning("No results found in quest plus file.")
+  }
+} else {
+  warning("quest plus file not found or more than one match.")
+}
