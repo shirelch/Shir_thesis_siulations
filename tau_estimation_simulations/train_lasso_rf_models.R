@@ -4,6 +4,7 @@ library(randomForest)
 library(caret)
 
 load("tau_estimation_simulations/data/config.rdata")
+source("tau_estimation_simulations/common/main_functions.R")
 
 Nobs_values = config$Nobs
 

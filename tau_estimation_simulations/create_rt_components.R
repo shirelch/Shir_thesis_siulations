@@ -1,5 +1,4 @@
 library(tidyverse)
-source("tau_estimation_simulations/common/main_functions.R")
 
 load("tau_estimation_simulations/data/config.rdata")
 Nobs_values = config$Nobs
