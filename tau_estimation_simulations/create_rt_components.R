@@ -1,6 +1,8 @@
 library(tidyverse)
 
 load("tau_estimation_simulations/data/config.rdata")
+source("tau_estimation_simulations/common/main_functions.R")
+
 Nobs_values = config$Nobs
 Nsubj = config$Nsubj
 
@@ -22,8 +24,16 @@ for (current_Nobs in Nobs_values) {
   
   for (i in 1:Nsubj) {
     rt          = rnorm(current_Nobs, mu[i], sigma[i]) + rexp(current_Nobs, rate = 1 / tau[i])
+    
     rt_list[[i]] = rt
+    
     mean_rt[i]  = mean(rt)
+    sd_rt[i]    = sd(rt)
+    sd_by_mean_rt[i] = sd_rt[i] / mean_rt[i]
+    
+    sd_median[i] = mean_diff_from_median(rt)
+    tau_est_mean_median[i]  = mean(rt) - median(rt)
+    
     rt_derv     = diff(rt, differences = 2)
     rt_derv_quartiles = cut(rt_derv,
                             quantile(rt_derv, probs = seq(0, 1, 0.25), na.rm = TRUE),
@@ -34,9 +44,6 @@ for (current_Nobs in Nobs_values) {
     q4_mean[i]  = mean(rt_derv[rt_derv_quartiles == levels(rt_derv_quartiles)[4]], na.rm = TRUE)
     mean_derv[i] = mean(abs(rt_derv))
     sd_derv[i]  = sd(abs(rt_derv))
-    sd_rt[i]    = sd(rt)
-    sd_median[i] = mean_diff_from_median(rt)
-    tau_est_mean_median[i]  = mean(rt) - median(rt)
     q1[i]  = quantile(rt, 0.1)
     q2[i]  = quantile(rt, 0.2)
     q3[i]  = quantile(rt, 0.3)
