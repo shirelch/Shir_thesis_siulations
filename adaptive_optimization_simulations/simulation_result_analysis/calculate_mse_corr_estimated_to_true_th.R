@@ -1,4 +1,5 @@
 library(dplyr)
+library(tidyr)
 
 file_paths = list.files(path = "./adaptive_optimization_simulations/data/static_threshold_simulation_results",
                         full.names = TRUE)
@@ -9,11 +10,21 @@ for (file_path in file_paths) {
   load(file_path)
   
   if (exists("all_results") && length(all_results) > 0) {
-    dataset_name = tools::file_path_sans_ext(basename(file_path))
+    # Clean up model name from filename
+    dataset_name <- tools::file_path_sans_ext(basename(file_path))
     
-    dataset_name = sub("_simulation_results", "", dataset_name)
-    dataset_name = sub("_100_trials_results", "", dataset_name)  # <-- remove suffix
-    dataset_name = gsub("_", " ", dataset_name)                  # <-- replace underscores with spaces
+    # Clean out common suffixes and underscores
+    dataset_name <- trimws(
+      gsub("_", " ",
+           gsub("_simulation", "",
+                gsub("_100_trials", "",
+                     gsub("_100_trials_results", "",
+                          gsub("_simulation_results", "", dataset_name)
+                     )
+                )
+           )
+      )
+    )
     
     df = all_results |>
       mutate(model = dataset_name) |>
@@ -116,3 +127,54 @@ if (length(quest_plus_file) == 1) {
 } else {
   warning("quest plus file not found or more than one match.")
 }
+
+library(ggplot2)
+
+# Filter only converged agents with non-NA estimated threshold
+plot_data <- convergence_results |>
+  filter(!is.na(estimated_threshold))
+
+# Scatter plot
+ggplot(plot_data, aes(x = t, y = estimated_threshold, color = model)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black") +
+  labs(
+    x = "True Threshold (t)",
+    y = "Estimated Threshold (post-convergence)",
+    title = "True vs Estimated Thresholds (Converged Agents Only)",
+    color = "Model"
+  ) +
+  theme_minimal()
+
+
+library(ggplot2)
+
+# Combine everything into one summary table
+summary_df <- convergence_results |>
+  filter(!is.na(estimated_threshold)) |>
+  group_by(model) |>
+  summarise(
+    mean_mse = mean(mse, na.rm = TRUE),
+    correlation = cor(estimated_threshold, t, use = "complete.obs"),
+    convergence_rate = mean(!is.na(convergence_trial)),
+    .groups = "drop"
+  )
+
+summary_long <- summary_df |>
+  pivot_longer(cols = c(mean_mse, correlation, convergence_rate),
+               names_to = "Metric",
+               values_to = "Value")
+
+ggplot(summary_long |> filter(Metric == "mean_mse"), aes(x = reorder(model, -Value), y = Value, fill = model)) +
+  geom_col(show.legend = FALSE) +
+  geom_text(aes(label = round(Value, 3)), vjust = -0.4, size = 3.5) +
+  labs(
+    x = "Model",
+    y = "Mean Squared Error",
+    title = "Model Comparison: MSE"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    strip.text = element_text(face = "bold", size = 11),
+    axis.text.x = element_text(angle = 30, hjust = 1)
+  )
