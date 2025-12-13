@@ -46,8 +46,7 @@ for (N in Nobs_values) {
     if (i %% 100 == 0) cat("  Subject", i, "\n")
     
     # Generate RT data with minimum threshold like other code
-    rt_raw = rnorm(N, mu[i], sigma[i]) + rexp(N, rate = 1 / tau[i])
-    rt = pmax(rt_raw, 50)  # Apply 50ms minimum threshold
+    rt = rnorm(N, mu[i], sigma[i]) + rexp(N, rate = 1 / tau[i])
     
     # Create predictors using updated function with models
     tryCatch({
@@ -95,6 +94,11 @@ for (N in Nobs_values) {
       r_mu = cor(results[[metric]], results$mu, use = "complete.obs")
       r_sigma = cor(results[[metric]], results$sigma, use = "complete.obs")
       r_tau = cor(results[[metric]], results$tau, use = "complete.obs")
+      valid_idx = complete.cases(results[[metric]], results$tau)
+      
+      diff_tau  = results[[metric]][valid_idx] - results$tau[valid_idx]
+      bias_mean = mean(diff_tau)
+      mae       = mean(abs(diff_tau))
       
       corr_results = rbind(corr_results,
                            data.frame(
@@ -103,7 +107,9 @@ for (N in Nobs_values) {
                              Correlation_with_mu = round(r_mu, 3),
                              Correlation_with_sigma = round(r_sigma, 3),
                              Correlation_with_tau = round(r_tau, 3),
-                             n_valid = sum(!is.na(results[[metric]]))
+                             n_valid = sum(!is.na(results[[metric]])),
+                             bias_mean = round(bias_mean, 3),
+                             mae = round(mae, 3)
                            ))
     } else {
       # Not enough valid data
@@ -130,7 +136,7 @@ cat("=== CORRELATION RESULTS SUMMARY ===\n")
 print(corr_results)
 
 # Create summary table (average across all Nobs values)
-correlation_summary <- corr_results %>%
+correlation_summary = corr_results %>%
   filter(!is.na(Correlation_with_tau)) %>%
   group_by(Metric) %>%
   summarise(
@@ -139,6 +145,8 @@ correlation_summary <- corr_results %>%
     avg_corr_tau = round(mean(Correlation_with_tau, na.rm = TRUE), 3),
     min_corr_tau = round(min(Correlation_with_tau, na.rm = TRUE), 3),
     max_corr_tau = round(max(Correlation_with_tau, na.rm = TRUE), 3),
+    avg_bias_mean = round(mean(bias_mean, na.rm = TRUE), 3),
+    avg_mae = round(mean(mae, na.rm = TRUE), 3),
     .groups = 'drop'
   ) %>%
   arrange(desc(avg_corr_tau))
@@ -147,7 +155,7 @@ cat("\n=== CORRELATION SUMMARY ACROSS ALL SAMPLE SIZES ===\n")
 print(correlation_summary)
 
 # Create visualization data
-plot_data <- corr_results %>%
+plot_data = corr_results %>%
   filter(!is.na(Correlation_with_tau)) %>%
   pivot_longer(
     cols = c(Correlation_with_mu, Correlation_with_sigma),
@@ -173,7 +181,7 @@ plot_data <- corr_results %>%
   )
 
 # Create correlation scatter plot
-correlation_plot <- ggplot(plot_data, 
+correlation_plot = ggplot(plot_data, 
                            aes(x = Correlation_x, y = Correlation_y, 
                                color = Metric_clean, shape = factor(Nobs))) +
   geom_point(size = 3, alpha = 0.8) +
@@ -208,7 +216,7 @@ ggsave("tau_estimation_simulations/results/correlation_scatter_plot.png",
        correlation_plot, width = 12, height = 8, dpi = 300)
 
 # Create heatmap of correlations with tau across sample sizes
-heatmap_data <- corr_results %>%
+heatmap_data = corr_results %>%
   filter(!is.na(Correlation_with_tau)) %>%
   mutate(
     Metric_clean = case_when(
@@ -223,7 +231,7 @@ heatmap_data <- corr_results %>%
     )
   )
 
-heatmap_plot <- ggplot(heatmap_data, 
+heatmap_plot = ggplot(heatmap_data, 
                        aes(x = factor(Nobs), y = reorder(Metric_clean, Correlation_with_tau), 
                            fill = Correlation_with_tau)) +
   geom_tile(color = "white", size = 0.5) +
