@@ -2,17 +2,7 @@ library(tidyverse)
 library(glmnet)
 library(randomForest)
 library(caret)
-
-# Install and load gamlss package
-if (!require(gamlss)) {
-  install.packages("gamlss")
-}
 library(gamlss)
-
-# Also load moments package for skewness calculation
-if (!require(moments)) {
-  install.packages("moments")
-}
 library(moments)
 
 # Load configuration and functions
@@ -60,11 +50,6 @@ if (!exists("rf_model_general")) {
   stop("rf_model_general not found. Please run train_general_models.R first.")
 }
 
-# Create aliases for the create_predictors_for_rt function
-# This function expects 'lasso_model' and 'rf_model_cv' to exist
-lasso_model <- lasso_model_general
-rf_model_cv <- rf_model_general$finalModel  # Extract the actual RF model from caret object
-
 cat("Created model aliases for compatibility with create_predictors_for_rt function\n")
 
 # Process test data for both sessions
@@ -89,7 +74,22 @@ process_test_session <- function(session_rt_data, session_name) {
       metrics <- create_predictors_for_rt(rt)
       
       # Get the predictions that were made by create_predictors_for_rt
-      lasso_pred <- metrics$lasso_factor
+      #lasso_pred <- metrics$lasso_factor
+      # --- FIX: compute LASSO prediction with training-aligned predictors ---
+      pred_names <- training_metadata$predictor_names
+      
+      # select predictors in the exact training order
+      x_row <- metrics %>% dplyr::select(dplyr::all_of(pred_names))
+      
+      # ensure numeric matrix (glmnet requires matrix)
+      x_mat <- as.matrix(x_row)
+      storage.mode(x_mat) <- "double"
+      
+      # handle any NAs (should be rare, but keeps pipeline stable)
+      x_mat[is.na(x_mat)] <- 0
+      
+      lasso_pred <- as.numeric(predict(lasso_model_general, newx = x_mat, s = "lambda.min"))
+      
       rf_pred <- metrics$rf_factor
       exgaus_fit <- metrics$exGaus_fit
       
@@ -217,6 +217,61 @@ if (nrow(merged_results) > 10) {
       mean(abs(merged_results$tau_est_mean_median_s1 - merged_results$true_tau_s1), na.rm = TRUE)
     )
   )
+  
+  # =========================
+  # ADD: Bias / MAE / n_valid vs true tau (Session 1)
+  # =========================
+  cat("\n=== BIAS + MAE VS TRUE TAU (SESSION 1) ===\n")
+  
+  bias_mae_summary <- lapply(metrics_to_analyze, function(metric) {
+    pred_col <- paste0(metric, "_s1")
+    true_col <- "true_tau_s1"
+    
+    if (!(pred_col %in% names(merged_results))) {
+      return(data.frame(metric = metric, n_valid = NA_integer_,
+                        bias_mean = NA_real_, mae = NA_real_,
+                        stringsAsFactors = FALSE))
+    }
+    
+    valid_idx <- complete.cases(merged_results[[pred_col]], merged_results[[true_col]])
+    n_valid <- sum(valid_idx)
+    
+    if (n_valid < 2) {
+      return(data.frame(metric = metric, n_valid = n_valid,
+                        bias_mean = NA_real_, mae = NA_real_,
+                        stringsAsFactors = FALSE))
+    }
+    
+    diff_tau <- merged_results[[pred_col]][valid_idx] - merged_results[[true_col]][valid_idx]
+    
+    data.frame(metric = metric,
+               n_valid = n_valid,
+               bias_mean = mean(diff_tau),
+               mae = mean(abs(diff_tau)),
+               stringsAsFactors = FALSE)
+  }) %>% bind_rows()
+  
+  print(bias_mae_summary)
+  
+  # Attach to correlation_summary (so everything is in one place for reporting)
+  correlation_summary <- correlation_summary %>%
+    left_join(bias_mae_summary, by = "metric")
+  
+  # Extra: ex-Gaussian convergence counts (both sessions)
+  if ("exgaus_fit" %in% metrics_to_analyze) {
+    ex_s1 <- "exgaus_fit_s1"
+    ex_s2 <- "exgaus_fit_s2"
+    if (ex_s1 %in% names(merged_results) && ex_s2 %in% names(merged_results)) {
+      conv_both <- complete.cases(merged_results[[ex_s1]], merged_results[[ex_s2]])
+      n_conv_both <- sum(conv_both)
+      n_total <- length(conv_both)
+      nonconv_pct <- (1 - mean(conv_both)) * 100
+      
+      cat(sprintf("\nexgaus_fit convergence (both sessions): %d/%d converged (non-convergence = %.1f%%)\n",
+                  n_conv_both, n_total, nonconv_pct))
+    }
+  }
+  
   
   cat("\n=== PREDICTION ACCURACY ===\n")
   print(accuracy_metrics)
